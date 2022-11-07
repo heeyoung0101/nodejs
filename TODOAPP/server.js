@@ -15,5 +15,16 @@ app.get('/pet', function(요청, 응답){
 });
 
 app.get('/beauty', function(request, response){
-    response.send('뷰티용품 쇼핑 페이지입니다.')
+    response.send('뷰티용품 쇼핑 페이지입니다아.')
 });
+
+app.get('/write', function(request, response){
+    response.sendFile(__dirname + '/write.html')
+});
+
+/** "/"하나만 쓰면 홈 */
+/** sendFile() html 파일 보낼 수 있음 */
+app.get('/', function(request, response){
+    response.sendFile(__dirname + '/index.html')
+});
+
