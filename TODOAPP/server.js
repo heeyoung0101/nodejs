@@ -1,20 +1,38 @@
-//기본셋팃
-//새로운 라브리를 만들어 주세요
+/** 
+ * 기본셋팃
+ * 새로운 라브리를 만들어 주세요
+ * */
 const express = require('express');
 
-//express를 이용하여 새로운 객체를 만들어주세요
+/** 
+ * express를 이용하여 새로운 객체를 만들어주세요
+ * */
 const app = express();
 
 /** 
  * body-perser 라이브러리 사용 
  * 요청 데이터 해석을 쉽게 도와줌
+ * express 라이브러리 깔면 자동으로 
  * */
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended : true}));
 
-app.listen(8080, function(){
-    console.log('listening on 8080')
-});
+const MongoClient = require('mongodb').MongoClient;
+MongoClient.connect('mongodb+srv://admin:adminhee@cluster0.jtsym6a.mongodb.net/?retryWrites=true&w=majority', function(에러, client){
+    if(에러) return console.log(에러) 
+    
+    db = client.db('todoapp'); //todoapp이라는 database에 접속해주세요
+
+    db.collection('post').insertOne({이름 : 'John', 나이 : 27}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
+        console.log('저장완료');
+    }); 
+
+    app.listen(8080, function(){ //몽고디비 접속 완료되면 서버 실행해 주세요
+        console.log('listening on 8080')
+    });
+})
+
+
 
 //누군가가 /pet으로 방문을 하면.. pet관련된 안내문을 띄워주자
 app.get('/pet', function(요청, 응답){
