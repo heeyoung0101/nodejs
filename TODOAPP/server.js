@@ -17,15 +17,22 @@ const app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended : true}));
 
+/** Mongo DB 사용하기 */
 const MongoClient = require('mongodb').MongoClient;
+
+/** EJS 사용하기 */
+app.set('view engine', 'ejs');
+
 MongoClient.connect('mongodb+srv://admin:adminhee@cluster0.jtsym6a.mongodb.net/?retryWrites=true&w=majority', function(에러, client){
     if(에러) return console.log(에러) 
     
     db = client.db('todoapp'); //todoapp이라는 database에 접속해주세요
 
-    db.collection('post').insertOne({이름 : 'John', 나이 : 27}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
+    /** 
+     * db.collection('post').insertOne({이름 : 'John', 나이 : 27, _id : 100}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
         console.log('저장완료');
     }); 
+    */
 
     app.listen(8080, function(){ //몽고디비 접속 완료되면 서버 실행해 주세요
         console.log('listening on 8080')
@@ -65,8 +72,26 @@ app.get('/', function(request, response){
  * 요청 데이터를 쉽게 볼 수 있음
  */
 app.post('/add',function(요청, 응답){
+
+    db.collection('post').insertOne({제목 : 요청.body.title, 날짜 : 요청.body.date, _id : 2}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
+    console.log('저장완료');
+      
     응답.send('전송완료')
-    console.log(요청.body.title)
-    console.log(요청.body.date)
-    console.log(요청.body)
+        console.log(요청.body.title)
+        console.log(요청.body.date)
+        console.log(요청.body)
+    }); 
+});
+
+/** 실제 db에 저장된 데이터들로 예쁘게 꾸며진 HTML보여줌 */
+app.get('/list', function(요청, 응답){
+
+    //db에 저장된 post라는 collection의 모든 데이터를 꺼내주세요
+    db.collection('post').find().toArray(function(에러, 결과){
+        console.log(결과);
+        //list.ejs  안에 결과를 출력
+        응답.render('list.ejs', {posts : 결과 });
+    });
+    
+
 });
