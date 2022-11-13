@@ -74,6 +74,7 @@ app.get('/', function(request, response){
 app.post('/add',function(요청, 응답){
 
     //db에서 원하는 하나의 데이터를 꺠내주세요
+    //유니크한 id값을 부여하기 위해 
     db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
         console.log(결과);
         var 총게시물개수 = 결과.totalPost;
@@ -82,7 +83,9 @@ app.post('/add',function(요청, 응답){
             console.log('저장완료');
             //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
             //{어떤 데이터를 수정할지}, {수정할 값}
-            db.collection('counter').updateOne({name : '게시물개수'}, {totalPost : totalPost + 1}, function(){})
+            //operator 써야함, $set은 바꿔주세요, $inc은 더해주세요
+            db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
+                if(에러){return console.log(에러)}
         });
     
 
@@ -104,5 +107,9 @@ app.get('/list', function(요청, 응답){
         응답.render('list.ejs', {posts : 결과 });
     });
     
+});
+
+app.delete('/delete', function(요청, 응답){
+    console.log(요청.body)
 
 });
