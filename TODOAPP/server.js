@@ -73,8 +73,19 @@ app.get('/', function(request, response){
  */
 app.post('/add',function(요청, 응답){
 
-    db.collection('post').insertOne({제목 : 요청.body.title, 날짜 : 요청.body.date, _id : 2}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
-    console.log('저장완료');
+    //db에서 원하는 하나의 데이터를 꺠내주세요
+    db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
+        console.log(결과);
+        var 총게시물개수 = 결과.totalPost;
+        //post라는 파일에 insert (Object 자료형)
+        db.collection('post').insertOne({_id : 총게시물개수 + 1, 제목 : 요청.body.title, 날짜 : 요청.body.date}, function(에러, 결과){ 
+            console.log('저장완료');
+            //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
+            //{어떤 데이터를 수정할지}, {수정할 값}
+            db.collection('counter').updateOne({name : '게시물개수'}, {totalPost : totalPost + 1}, function(){})
+        });
+    
+
       
     응답.send('전송완료')
         console.log(요청.body.title)
