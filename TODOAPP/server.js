@@ -110,6 +110,12 @@ app.get('/list', function(요청, 응답){
 });
 
 app.delete('/delete', function(요청, 응답){
-    console.log(요청.body)
-
+    console.log(요청.body);
+    //요청.body 안의 문자를 숫자로 변환
+    요청.body._id = parseInt(요청.body._id);
+    console.log(요청.body);
+    //요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제해 주세요 
+    db.collection('post').deleteOne(요쳥.body, function(에러, 결과){
+        console.log('삭제완료');
+    })
 });
