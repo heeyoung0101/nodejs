@@ -6,57 +6,53 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="public/main.css">
 
     <title>할 일 목록</title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">TODOAPP</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Write</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">임시</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <h4 class="ml-2 my-3">서버에서 가져온 할 일 리스트</h4>
+     <!-- 이 자리에 nav.html 삽입 -->
+     <%- include('nav.html') %> 
+     
+      <h4 class="ml-2 my-3 text-center">서버에서 가져온 할 일 리스트</h4>
 
+      <div class="contaner">
       <ul class="list-group">
         <% for(var i = 0; i < posts.length; i++){ %>
         <li class="list-group-item">
           <p>글번호 : <%= posts[i]._id %></p>
-          <h4>할 일 제목 : <%= posts[i].제목 %></h4>
+          <h4 class="detail" data-id="<%= posts[i]._id %>">할 일 제목 : <%= posts[i].제목 %></h4>
           <p>할 일 마감날짜 : <%= posts[i].날짜 %> </p>
-          <button class="delete" data-id="<%= posts[i]._id %>">삭제</button><!--HTML상에서는 DELETE요청을 처리할 수 없음(설계상의 오류) > 라이브러리이용, AJAX이용-->
+          <button class="btn btn-danger delete" data-id="<%= posts[i]._id %>">삭제</button><!--HTML상에서는 DELETE요청을 처리할 수 없음(설계상의 오류) > 라이브러리이용, AJAX이용-->
         </li>
         <% } %> 
       </ul>
-
+    </div>
 
       <!--AJAX는 새로고침 없이 서버에 요청하는 걸 도와주는 JS문법-->
       <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script>
        $('.delete').click(function(e){
         var 글번호 = e.target.dataset.id; //내가 누른 버튼에 숨겨진 data-id 값을 가져와주세요
-
+        var 지금누른거 = $(this); // this = 지금 이벤트 동작하는 곳, e.target = 지금 클릭한 것
         $.ajax({
           method : 'DELETE', //처리할 method
           url : '/delete', //요청할 경로
           data : {_id : 글번호} //요청과 함께 보낼 데이터 / 요청할 떄 삭제할 게시물 번호를 함께 전송
         }).done(function(결과){
-        });
+          //페이지를 강제로 새로고침해주세요
+          //삭제버튼을 누른 <li> 요소를 제거해 주세료(안보이게)
+            console.log('성공했어용');
+            지금누른거.parent().fadeOut(); // 스무스하게 사라짐
+        }).fail(function(xhr, textStatus, errorThrown){ // ?, 응답코드, 에러메세지
+          console.log(xhr, textStatus, errorThrown);
+        })
        })
        
+       /** 할 일 제목을 누르면 상세페이지로 이동 */
+       $('.detail').click(function(e){
+        location.href = '/detail/'+e.target.dataset.id;
+       })
       
 
       </script>

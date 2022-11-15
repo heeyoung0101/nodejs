@@ -23,6 +23,9 @@ const MongoClient = require('mongodb').MongoClient;
 /** EJS 사용하기 */
 app.set('view engine', 'ejs');
 
+/** 요청과 응답 사이에 동작 미들웨어, 나는 static 파일을 보관하기 위해  public 파일을 쓸 거야 */
+app.use('/public', express.static('public'));
+
 MongoClient.connect('mongodb+srv://admin:adminhee@cluster0.jtsym6a.mongodb.net/?retryWrites=true&w=majority', function(에러, client){
     if(에러) return console.log(에러) 
     
@@ -56,7 +59,8 @@ app.get('/beauty', (request, response)=>{
 });
 
 app.get('/write', function(request, response){
-    response.sendFile(__dirname + '/write.html')
+    response.render('write.ejs');
+   // response.sendFile(__dirname + '/write.html')
 });
 
 /** 
@@ -64,7 +68,8 @@ app.get('/write', function(request, response){
  * sendFile() html 파일 보낼 수 있음 
  * */
 app.get('/', function(request, response){
-    response.sendFile(__dirname + '/index.html')
+    response.render('index.ejs');
+   // response.sendFile(__dirname + '/index.html')
 });
 
 /**
@@ -89,11 +94,11 @@ app.post('/add',function(요청, 응답){
         });
     
 
-      
-    응답.send('전송완료')
-        console.log(요청.body.title)
-        console.log(요청.body.date)
-        console.log(요청.body)
+        응답.render('write.ejs');
+    //응답.send('전송완료')
+      //  console.log(요청.body.title)
+        //console.log(요청.body.date)
+        //console.log(요청.body)
     }); 
 });
 
@@ -115,7 +120,20 @@ app.delete('/delete', function(요청, 응답){
     요청.body._id = parseInt(요청.body._id);
     console.log(요청.body);
     //요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제해 주세요 
-    db.collection('post').deleteOne(요쳥.body, function(에러, 결과){
+    db.collection('post').deleteOne(요청.body, function(에러, 결과){
         console.log('삭제완료');
-    })
+       //응답코드 200을 보내주세요(성공), 400은 실패, 500은 서버 문제
+        응답.status(200).send({message : '성공했습니다'});
+       // 응답.status(400).send({message : '실패했습니다'}); //실패
+    });
 });
+
+/** detail 로 접속하면 detail.ejs 보여줌 */
+app.get('/detail/:id', function(요청, 응답){ // 'detail/어쩌구' 로 get요청을 하면(파라미터 기능)
+    요청.params.id = parseInt(요청.params.id);
+    db.collection('post').findOne({_id : 요청.params.id}, function(에러, 결과){ // _id 값이 파라미터의 id 인 데이터 하나를 찾아와주세요
+        console.log('결과');
+        응답.render('detail.ejs', { data: 결과 });
+    })
+    
+})
