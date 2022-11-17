@@ -151,10 +151,10 @@ app.get('/edit/:id', function(요청, 응답){
 })
 
 app.post('/editfinish', function(요청, 응답){
-    console.log(요청.body);
+    console.log(요청.body._id);
     db.collection('post').updateOne({_id : 요청.body._id}, {$set : {title : 요청.body.title}}, function(에러, 결과){
         console.log("수정완료");
-    })   
-    응답.sendFile(__dirname + '/views/index.ejs')
+        console.log(결과);
+    });   
    
 })

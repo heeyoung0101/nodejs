@@ -23,8 +23,7 @@
       <div class="form-group">
         <label>날짜</label>
         <input type="text" placeholder="<%=data.날짜%>" value="<%=data.날짜%>" class="form-control" name="date">
-        <label>번호</label>
-        <input type="text" value="<%=data._id%>">
+        <input type="hidden" name="_id" value="<%=data._id%>">
     </div>
       <button type="submit" class="btn btn-outline-secondary">Submit</button>
     </form>
