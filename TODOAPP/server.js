@@ -23,6 +23,9 @@ const MongoClient = require('mongodb').MongoClient;
 /** EJS 사용하기 */
 app.set('view engine', 'ejs');
 
+/** FOMM 태그에서 다른 메서드 요청하기 */
+
+
 /** 요청과 응답 사이에 동작 미들웨어, 나는 static 파일을 보관하기 위해  public 파일을 쓸 거야 */
 app.use('/public', express.static('public'));
 
@@ -132,8 +135,26 @@ app.delete('/delete', function(요청, 응답){
 app.get('/detail/:id', function(요청, 응답){ // 'detail/어쩌구' 로 get요청을 하면(파라미터 기능)
     요청.params.id = parseInt(요청.params.id);
     db.collection('post').findOne({_id : 요청.params.id}, function(에러, 결과){ // _id 값이 파라미터의 id 인 데이터 하나를 찾아와주세요
-        console.log('결과');
+        console.log(결과);
         응답.render('detail.ejs', { data: 결과 });
     })
     
+})
+
+app.get('/edit/:id', function(요청, 응답){
+    요청.params.id = parseInt(요청.params.id);
+    db.collection('post').findOne({_id : 요청.params.id}, function(에러, 결과){ // _id 값이 파라미터의 id 인 데이터 하나를 찾아와주세요
+        console.log(결과);
+        응답.render('edit.ejs', { data: 결과});
+    
+})
+})
+
+app.post('/editfinish', function(요청, 응답){
+    console.log(요청.body);
+    db.collection('post').updateOne({_id : 요청.body._id}, {$set : {title : 요청.body.title}}, function(에러, 결과){
+        console.log("수정완료");
+    })   
+    응답.sendFile(__dirname + '/views/index.ejs')
+   
 })
