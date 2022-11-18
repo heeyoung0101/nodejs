@@ -23,23 +23,29 @@ const MongoClient = require('mongodb').MongoClient;
 /** EJS 사용하기 */
 app.set('view engine', 'ejs');
 
-/** FOMM 태그에서 다른 메서드 요청하기 */
+/** FOMM 태그에서 다른 메서드(PUT, DELETE) 요청하기 */
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
 
+/** session 만들기 라이브러리 */
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
 
-/** 요청과 응답 사이에 동작 미들웨어, 나는 static 파일을 보관하기 위해  public 파일을 쓸 거야 */
+app.use(session({secret : '비밀코드', resave : true, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+/** app.use 요청과 응답 사이에 동작 미들웨어, 나는 static 파일을 보관하기 위해  public 파일을 쓸 거야 */
 app.use('/public', express.static('public'));
-
 MongoClient.connect('mongodb+srv://admin:adminhee@cluster0.jtsym6a.mongodb.net/?retryWrites=true&w=majority', function(에러, client){
-    if(에러) return console.log(에러) 
-    
-    db = client.db('todoapp'); //todoapp이라는 database에 접속해주세요
-
+    if(에러) return console.log(에러)     
+        db = client.db('todoapp'); //todoapp이라는 database에 접속해주세요
     /** 
      * db.collection('post').insertOne({이름 : 'John', 나이 : 27, _id : 100}, function(에러, 결과){ //post라는 파일에 insert (Object 자료형)
         console.log('저장완료');
     }); 
     */
-
     app.listen(8080, function(){ //몽고디비 접속 완료되면 서버 실행해 주세요
         console.log('listening on 8080')
     });
@@ -47,7 +53,7 @@ MongoClient.connect('mongodb+srv://admin:adminhee@cluster0.jtsym6a.mongodb.net/?
 
 
 
-//누군가가 /pet으로 방문을 하면.. pet관련된 안내문을 띄워주자
+/** 누군가가 '/pet'으로 방문을 하면.. pet관련된 안내문을 띄워주자 */
 app.get('/pet', function(요청, 응답){
     응답.send('펫용품 쇼핑 페이지입니다.');
 });
@@ -80,7 +86,6 @@ app.get('/', function(request, response){
  * 요청 데이터를 쉽게 볼 수 있음
  */
 app.post('/add',function(요청, 응답){
-
     //db에서 원하는 하나의 데이터를 꺠내주세요
     //유니크한 id값을 부여하기 위해 
     db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
@@ -95,8 +100,6 @@ app.post('/add',function(요청, 응답){
             db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
                 if(에러){return console.log(에러)}
         });
-    
-
         응답.render('write.ejs');
     //응답.send('전송완료')
       //  console.log(요청.body.title)
@@ -107,16 +110,15 @@ app.post('/add',function(요청, 응답){
 
 /** 실제 db에 저장된 데이터들로 예쁘게 꾸며진 HTML보여줌 */
 app.get('/list', function(요청, 응답){
-
     //db에 저장된 post라는 collection의 모든 데이터를 꺼내주세요
     db.collection('post').find().toArray(function(에러, 결과){
         console.log(결과);
         //list.ejs  안에 결과를 출력
         응답.render('list.ejs', {posts : 결과 });
     });
-    
 });
 
+/** 글 삭제하기 AJAX */
 app.delete('/delete', function(요청, 응답){
     console.log(요청.body);
     //요청.body 안의 문자를 숫자로 변환
@@ -141,6 +143,7 @@ app.get('/detail/:id', function(요청, 응답){ // 'detail/어쩌구' 로 get�
     
 })
 
+/** 글 수정 페이지 */
 app.get('/edit/:id', function(요청, 응답){
     요청.params.id = parseInt(요청.params.id);
     db.collection('post').findOne({_id : 요청.params.id}, function(에러, 결과){ // _id 값이 파라미터의 id 인 데이터 하나를 찾아와주세요
@@ -150,11 +153,40 @@ app.get('/edit/:id', function(요청, 응답){
 })
 })
 
-app.post('/editfinish', function(요청, 응답){
-    console.log(요청.body._id);
-    db.collection('post').updateOne({_id : 요청.body._id}, {$set : {title : 요청.body.title}}, function(에러, 결과){
-        console.log("수정완료");
-        console.log(결과);
-    });   
-   
-})
+/** 글 수정하기 put요청 */
+app.put('/edit', function(요청, 응답){
+    console.log(요청.body.id);
+    db.collection('post').updateOne({_id : parseInt(요청.body.id)}, { $set : {제목 : 요청.body.title, 날짜 : 요청.body.date}}, function(){
+        console.log('수정완료');
+        응답.redirect('/list'); //요청이 완료되었을 때 이동할 경로
+    });
+});
+
+app.get('/login', function(요청, 응답){
+    응답.render('login.ejs');
+});
+
+/** 아이디 검사 */
+app.post('/login', passport.authenticate('local', {
+    failureRedirect: '/fail'
+}), function(요청, 응답){
+    응답.redirect('/');
+});
+
+passport.use(new LocalStrategy({
+    usernameField: 'id', // 사용자가 제출한 아이디가 어디 적혔는지
+    passwordField: 'pw', // 사용자가 제출한 비번이 어디 적혔는지 
+    session: true, //세션을 만들건지
+    passReqToCallback: false, // 아이디, 비번 말고 다른 정보검사가 필요한지
+}), function(입력한아이디, 입력한비번, done){
+    console.log(입력한아이디, 입력한비번);
+    db.collection('login').findOne({ id: 입력한아이디}, function(에러, 결과){
+        if(에러) return done(에러)
+        if(!결과) return done(null, false, {messafe: '존재하지 않는 아이디요'})
+        if(입력한비번 == 결과.pw){
+            return done(null, 결과)
+        } else {
+            return done(null, false, {message: '비번틀렸어요'})
+        }
+    })
+});
