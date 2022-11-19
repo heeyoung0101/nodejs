@@ -69,7 +69,7 @@ app.get('/beauty', (request, response)=>{
 });
 
 app.get('/write', function(request, response){
-    response.render('write.ejs');
+    response.render('write.ejs', { 에러 : ''});
    // response.sendFile(__dirname + '/write.html')
 });
 
@@ -89,24 +89,34 @@ app.get('/', function(request, response){
 app.post('/add',function(요청, 응답){
     //db에서 원하는 하나의 데이터를 꺠내주세요
     //유니크한 id값을 부여하기 위해 
-    db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
-        console.log(결과);
-        var 총게시물개수 = 결과.totalPost;
-        //post라는 파일에 insert (Object 자료형)
-        db.collection('post').insertOne({_id : 총게시물개수 + 1, 제목 : 요청.body.title, 날짜 : 요청.body.date}, function(에러, 결과){ 
-            console.log('저장완료');
-            //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
-            //{어떤 데이터를 수정할지}, {수정할 값}
-            //operator 써야함, $set은 바꿔주세요, $inc은 더해주세요
-            db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
-                if(에러){return console.log(에러)}
-        });
-        응답.render('write.ejs');
+    if(요청.body.title){
+        if(요청.body.date){
+            db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
+                console.log(결과);
+                var 총게시물개수 = 결과.totalPost;
+                //post라는 파일에 insert (Object 자료형)
+                db.collection('post').insertOne({_id : 총게시물개수 + 1, 제목 : 요청.body.title, 날짜 : 요청.body.date}, function(에러, 결과){ 
+                    console.log('저장완료');
+                    //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
+                    //{어떤 데이터를 수정할지}, {수정할 값}
+                    //operator 써야함, $set은 바꿔주세요, $inc은 더해주세요
+                    db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
+                        if(에러){return console.log(에러)}
+                });
+                응답.render('write.ejs', { 에러 : '오늘의 할 일이 작성되었습니다!'});
+            }); 
+        } else {
+            응답.render('write.ejs', { 에러 : '날짜를 입력해 주세요'});
+        }
+    } else {
+        응답.render('write.ejs', { 에러 : '할 일과 날짜를 입력해 주세요'});
+    }
+    
     //응답.send('전송완료')
       //  console.log(요청.body.title)
         //console.log(요청.body.date)
         //console.log(요청.body)
-    }); 
+   
 });
 
 /** 실제 db에 저장된 데이터들로 예쁘게 꾸며진 HTML보여줌 */
