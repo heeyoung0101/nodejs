@@ -82,42 +82,6 @@ app.get('/', function(request, response){
    // response.sendFile(__dirname + '/index.html')
 });
 
-/**
- * form 데이터 보내기
- * 요청 데이터를 쉽게 볼 수 있음
- */
-app.post('/add',function(요청, 응답){
-    //db에서 원하는 하나의 데이터를 꺠내주세요
-    //유니크한 id값을 부여하기 위해 
-    if(요청.body.title){
-        if(요청.body.date){
-            db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
-                console.log(결과);
-                var 총게시물개수 = 결과.totalPost;
-                //post라는 파일에 insert (Object 자료형)
-                db.collection('post').insertOne({_id : 총게시물개수 + 1, 제목 : 요청.body.title, 날짜 : 요청.body.date}, function(에러, 결과){ 
-                    console.log('저장완료');
-                    //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
-                    //{어떤 데이터를 수정할지}, {수정할 값}
-                    //operator 써야함, $set은 바꿔주세요, $inc은 더해주세요
-                    db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
-                        if(에러){return console.log(에러)}
-                });
-                응답.render('write.ejs', { 에러 : '오늘의 할 일이 작성되었습니다!'});
-            }); 
-        } else {
-            응답.render('write.ejs', { 에러 : '날짜를 입력해 주세요'});
-        }
-    } else {
-        응답.render('write.ejs', { 에러 : '할 일과 날짜를 입력해 주세요'});
-    }
-    
-    //응답.send('전송완료')
-      //  console.log(요청.body.title)
-        //console.log(요청.body.date)
-        //console.log(요청.body)
-   
-});
 
 /** 실제 db에 저장된 데이터들로 예쁘게 꾸며진 HTML보여줌 */
 app.get('/list', function(요청, 응답){
@@ -163,20 +127,6 @@ app.get('/search', (요청, 응답) => {
     */
 })
 
-/** 글 삭제하기 AJAX */
-app.delete('/delete', function(요청, 응답){
-    console.log(요청.body);
-    //요청.body 안의 문자를 숫자로 변환
-    요청.body._id = parseInt(요청.body._id);
-    console.log(요청.body);
-    //요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제해 주세요 
-    db.collection('post').deleteOne(요청.body, function(에러, 결과){
-        console.log('삭제완료');
-       //응답코드 200을 보내주세요(성공), 400은 실패, 500은 서버 문제
-        응답.status(200).send({message : '성공했습니다'});
-       // 응답.status(400).send({message : '실패했습니다'}); //실패
-    });
-});
 
 /** detail 로 접속하면 detail.ejs 보여줌 */
 app.get('/detail/:id', function(요청, 응답){ // 'detail/어쩌구' 로 get요청을 하면(파라미터 기능)
@@ -268,3 +218,70 @@ passport.deserializeUser(function(아이디, done){ // 아이디는 user.id
     })
 });
 
+/** 회원기능이 필요하면 passport 셋팅하는 부분이 위에 있어야 함 
+ * - 나중에 할 것 
+ * 저장 전에 id가 이미 있는지 먼저 찾아봐야
+ * id에 알파벳 숫자만 잘 들어있나
+ * 비번 저장 전에 암호화했나(라이브러리 사용)
+*/
+app.post('/register', function(요청, 응답){
+    db.collection('login').insertOne({ id : 요청.body.id, pw : 요청.body.pw}, function(에러, 결과){
+        응답.redirect('/');
+    })
+})
+
+/**
+ * form 데이터 보내기
+ * 요청 데이터를 쉽게 볼 수 있음
+ */
+ app.post('/add',function(요청, 응답){
+    //db에서 원하는 하나의 데이터를 꺠내주세요
+    //유니크한 id값을 부여하기 위해 
+    if(요청.body.title){
+        if(요청.body.date){
+            db.collection('counter').findOne({name : '게시물개수'}, function(에러, 결과){
+                console.log(결과);
+                var 총게시물개수 = 결과.totalPost;
+                var 저장할거 = {_id : 총게시물개수 + 1, 제목 : 요청.body.title, 날짜 : 요청.body.date, 작성자 : 요청.user.id}
+                //post라는 파일에 insert (Object 자료형)
+                db.collection('post').insertOne(저장할거, function(에러, 결과){ 
+                    console.log('저장완료');
+                    //counter라는 totalPost 항목도 1 증가시켜야 함, UpdateOne / UpdateMany
+                    //{어떤 데이터를 수정할지}, {수정할 값}
+                    //operator 써야함, $set은 바꿔주세요, $inc은 더해주세요
+                    db.collection('counter').updateOne({name : '게시물개수'}, {$inc : {totalPost : 1}}, function(에러, 결과){})
+                        if(에러){return console.log(에러)}
+                });
+                응답.render('write.ejs', { 에러 : '오늘의 할 일이 작성되었습니다!'});
+            }); 
+        } else {
+            응답.render('write.ejs', { 에러 : '날짜를 입력해 주세요'});
+        }
+    } else {
+        응답.render('write.ejs', { 에러 : '할 일과 날짜를 입력해 주세요'});
+    }
+    
+    //응답.send('전송완료')
+      //  console.log(요청.body.title)
+        //console.log(요청.body.date)
+        //console.log(요청.body)
+   
+});
+
+/** 글 삭제하기 AJAX */
+app.delete('/delete', function(요청, 응답){
+    console.log(요청.body);
+    //요청.body 안의 문자를 숫자로 변환
+    요청.body._id = parseInt(요청.body._id);
+    console.log(요청.body);
+
+    var 삭제할데이터 = { _id : 요청.body._id, 작성자 : 요청.user.id}
+    //요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제해 주세요 
+    db.collection('post').deleteOne(삭제할데이터, function(에러, 결과){
+        console.log('삭제완료');
+        if(에러) console.log(에러)
+       //응답코드 200을 보내주세요(성공), 400은 실패, 500은 서버 문제
+        응답.status(200).send({message : '성공했습니다'});
+       // 응답.status(400).send({message : '실패했습니다'}); //실패
+    });
+});
