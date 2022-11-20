@@ -4,6 +4,9 @@
  * */
 const express = require('express');
 
+/** node.js 기본 내장 라이브러리, 파일의 경로, 이름, 확장자 등 알아낼 때 */
+const path = require('path');
+
 /** 
  * express를 이용하여 새로운 객체를 만들어주세요
  * */
@@ -296,18 +299,27 @@ app.use('/board/sub', require('./routes/board.js'));
 
 /** multer(파일) 라이브러리 셋팅 */
 let multer = require('multer');
-var storage = multer.diskStorage({ // 어디에 저장?
-    destination : function(req, file, cb){// 이미지를 어디에 보낼지
+var storage = multer.diskStorage({ // 어디에 저장? 하드, 램
+    destination : function(req, file, cb){// 이미지를 어떤 경로에 저장할지
         cb(null, './public/image')
     },
     filename: function(req, file, cb){// 파일명 설정
-        cb(null, file.originalname + '날짜' + new Date())
-    },
-    filefilter : function(req, file, cb){
-
+        cb(null, file.originalname) // 오리지널 이름
     }
 });
-var upload = multer({storage : storage}); //미들웨어처럼 불러 쓸 수 있음
+var upload = multer({
+    storage : storage,
+    fileFilter: function(req, file, callback){// 확장자 거르기 
+        var ext = path.extname(file.originalname);// path는 node.js 기본 내장 라이브러리 변수, 파일의 경로, 이름, 확장자 등 알아낼 때
+        if(ext != '.jpg' && ext != '.png' && ext != '.jpeg'){
+            return callback(new Error('PNG, JPG만 업로드 하세요'))
+        }
+        callback(null, true)
+    }, 
+    limits: {// 파일 사이즈 제한
+        fileSize: 1024 * 1024 // 1MB
+    }
+});//미들웨어처럼 불러 쓸 수 있음 
 
 /** 파일 업로드
  * 이미지는 db보다 하드에 저장하는 게 더 쌈
@@ -323,6 +335,6 @@ app.post('/upload', upload.single('profile'), function(요청, 응답){
     응답.send('업로드완료');
 });
 
-app.get('/image/이미지이름', function(요청, 응답){
-    응답.sendFile(__dirname + '/public/image' + 이미지이름);
+app.get('/image/:imageName', function(요청, 응답){
+    응답.sendFile(__dirname + '/public/image' + 요청.params.imageName);
 })

@@ -16,16 +16,34 @@
 
    <div class="container ml-4 mt-4">
     <h4>홈입니다^0^</h4>
+    <h5>자소서를 만들어 줄게요</h3>
+    <label>이름
+      <input type="text" id="name">
+    </label>
+    <br>
+    <label>나이
+      <input type="number" id="age">
+    </label>
+    <br>
+    <label>취미
+      <input type="type" id="hobby">
+    </label>
+      <button class="btn btn-warning" id="click">생성</button>
+      <p id="result"></p>
 
    </div>
 
-      
-     
+   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+     <script>
+      $('#click').click(function(e){
+        $('#result').append("안녕하세요! 제 이름은 " + $('#name').val() +" 입니다. 나이는 " + $('#age').val() + " 살 이고요, "+ $('#hobby').val() + "를 좋아합니다. 잘 부탁드립니다.<br>");
+       })
+     </script>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
-    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 
     <!-- Option 2: Separate Popper and Bootstrap JS -->
