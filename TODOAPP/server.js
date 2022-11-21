@@ -238,6 +238,7 @@ app.post('/register', function(요청, 응답){
  * 요청 데이터를 쉽게 볼 수 있음
  */
  app.post('/add',function(요청, 응답){
+    if(요청.user){
     //db에서 원하는 하나의 데이터를 꺠내주세요
     //유니크한 id값을 부여하기 위해 
     if(요청.body.title){
@@ -263,6 +264,9 @@ app.post('/register', function(요청, 응답){
     } else {
         응답.render('write.ejs', { 에러 : '할 일과 날짜를 입력해 주세요'});
     }
+}else{
+    응답.render('login.ejs');
+}
     
     //응답.send('전송완료')
       //  console.log(요청.body.title)
@@ -337,4 +341,8 @@ app.post('/upload', upload.single('profile'), function(요청, 응답){
 
 app.get('/image/:imageName', function(요청, 응답){
     응답.sendFile(__dirname + '/public/image' + 요청.params.imageName);
+})
+
+app.get('/chat', function(요청, 응답){
+    응답.render('chat.ejs');
 })

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="public/main.css">
+  <title>Document</title>
+  <style>
+    .chat-content {
+  height: 450px;
+  overflow-y: scroll;
+  padding: 10px;
+}
+.chat-content li {
+  margin-top: 10px;
+  list-style: none;
+}
+.text-small {
+  font-size: 12px;
+  color: gray;
+  margin-bottom: 0;
+}
+.chat-box {
+  background: #eee;
+  padding: 5px;
+  border-radius: 5px;
+  float: left;
+}
+.mine {
+  float: right;
+} 
+  </style>
+</head>
+<body>
+  <!-- 이 자리에 nav.html 삽입 -->
+  <%- include('nav.html') %> 
+
+  <div class="container p-4 detail">
+
+    <div class="row">
+      <div class="col-3">
+        <ul class="list-group chat-list">
+          <li class="list-group-item" data-id="">
+            <h6>채팅방1</h6>
+            <h6 class="text-small">채팅방설명</h6>
+          </li>
+          <li class="list-group-item">
+             <h6>채팅방2</h6>
+             <h6 class="text-small">채팅방설명</h6>
+           </li>
+         </ul>
+       </div>
+  
+       <div class="col-9 p-0">
+         <div class="chat-room">
+            <ul class="list-group chat-content">
+              <li><span class="chat-box">안녕</span></li>
+              <li><span class="chat-box">들리니?</span></li>
+              <li><span class="chat-box mine">응 안녕</span></li>
+            </ul>
+          <div class="input-group">
+            <input class="form-control" id="chat-input">
+            <button class="btn btn-secondary" id="send">전송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div> 
+  
+
+  <!--<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>-->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
