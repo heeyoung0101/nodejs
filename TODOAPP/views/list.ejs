@@ -30,6 +30,7 @@
           <h4 class="detail" data-id="<%= posts[i]._id %>">할 일 제목 : <%= posts[i].제목 %></h4>
           <p>할 일 마감날짜 : <%= posts[i].날짜 %> </p>
           <button class="btn btn-danger delete" data-id="<%= posts[i]._id %>">삭제</button><!--HTML상에서는 DELETE요청을 처리할 수 없음(설계상의 오류) > 라이브러리이용, AJAX이용-->
+          <button class="btn btn-success chat" data-id="<%= posts[i].작성자 %>">이 유저와 채팅하기</button>
         </li>
         <% } %> 
       </ul>
@@ -37,7 +38,9 @@
 
       <!--AJAX는 새로고침 없이 서버에 요청하는 걸 도와주는 JS문법-->
       <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script>
+
+      <script>
+      /** 해당 게시물 삭제하기 */      
        $('.delete').click(function(e){
         var 글번호 = e.target.dataset.id; //내가 누른 버튼에 숨겨진 data-id 값을 가져와주세요
         var 지금누른거 = $(this); // this = 지금 이벤트 동작하는 곳, e.target = 지금 클릭한 것
@@ -69,6 +72,16 @@
        /** var 자료 = { 이름 : '값', 이름2 : '값2'}
        $.param(자료)
        $(폼태그).serialize() 담에 해보기*/
+
+       /** 이 유저와 채팅하기 */
+       $('.chat').click(function(e){
+        var 글작성자 = e.target.dataset.id;
+        // post 방식으로 ajax 보내기 축약 버전
+        // ajax로 보내는 데이터는 보안 주의, 최소한의 정보만 
+        $.post('/chatroom', {작성자 : 글작성자}).then((결과)=>{
+          console.log('채팅을 시작해요!');
+        })
+       })
       </script>
 
     <!-- Optional JavaScript; choose one of the two! -->

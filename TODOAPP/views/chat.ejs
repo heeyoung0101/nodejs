@@ -41,15 +41,14 @@
 
     <div class="row">
       <div class="col-3">
+        <h5>내게 온 채팅</h5>
         <ul class="list-group chat-list">
+            <% for ( let i = 0; i < data.length; i++){ %>
           <li class="list-group-item" data-id="">
-            <h6>채팅방1</h6>
-            <h6 class="text-small">채팅방설명</h6>
+            <h6><%=data[i].title%></h6>
+            <h6 class="text-small"><%= data[i].member[1] %></h6>
           </li>
-          <li class="list-group-item">
-             <h6>채팅방2</h6>
-             <h6 class="text-small">채팅방설명</h6>
-           </li>
+          <% } %>
          </ul>
        </div>
   

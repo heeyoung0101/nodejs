@@ -343,6 +343,23 @@ app.get('/image/:imageName', function(요청, 응답){
     응답.sendFile(__dirname + '/public/image' + 요청.params.imageName);
 })
 
-app.get('/chat', function(요청, 응답){
-    응답.render('chat.ejs');
+
+/** 이 유저와 채팅하기(새로운 채팅룸 만들기) */
+app.post('/chatroom', 로그인했니, function(요청, 응답){
+    console.log(요청.body);
+    var 만들데이터 = {
+        member : [요청.body.작성자, 요청.user.id],
+        date : new Date(),
+        title : 요청.body.작성자 + ' 님 안녕하세요! ' + 요청.user.id + ' 입니다.'
+    };
+    db.collection('chatroom').insertOne(만들데이터).then((결과)=>{ //콜백함수 대신.then도 사용 가능
+        
+    })
+    
+})
+
+app.get('/chat', 로그인했니, function(요청, 응답){
+    db.collection('chatroom').find({member : 요청.user.id}).toArray().then((결과)=>{
+        응답.render('chat.ejs', {data : 결과});
+    })
 })
