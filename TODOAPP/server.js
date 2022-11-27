@@ -363,3 +363,19 @@ app.get('/chat', 로그인했니, function(요청, 응답){
         응답.render('chat.ejs', {data : 결과});
     })
 })
+
+/** 메세지 전송하기 */
+app.post('/message', 로그인했니, function(요청, 응답){
+    
+    var 저장할거 = {
+        parent : 요청.body.parent,
+        content : 요청.body.content,
+        userid : 요청.user.id,
+        date : new Date()
+    }
+    db.collection('message').insertOne(저장할거).then(()=>{
+        console.log('DB저장성공');
+        응답.send('DB저장성공');
+
+    })
+})

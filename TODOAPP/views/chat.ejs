@@ -44,13 +44,15 @@
         <h5>내게 온 채팅</h5>
         <ul class="list-group chat-list">
             <% for ( let i = 0; i < data.length; i++){ %>
-          <li class="list-group-item" data-id="">
+          <li class="list-group-item" data-id="<%= data[i]._id %>" style="cursor: grab;">
             <h6><%=data[i].title%></h6>
             <h6 class="text-small"><%= data[i].member[1] %></h6>
           </li>
           <% } %>
          </ul>
        </div>
+      
+       
   
        <div class="col-9 p-0">
          <div class="chat-room">
@@ -69,9 +71,33 @@
   
   </div> 
   
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script>
+    var 지금누른채팅방id; 
+    //채팅방 이름을 누르면 해당 채팅방 _id값이 변수에 담김
+    $('.list-group-item').click(function(){
+        지금누른채팅방id = this.dataset.id; 
+        console.log('채팅방 id 저장');
+    })
 
-  <!--<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>-->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    //전송 버튼을 누르면 입력한 메세지가 해당 채팅방의 db에 저장됨
+    $('#send').click(function(){
+        var 채팅내용 = $('#chat-input').val();
+        var 보낼거 = {
+            parent : 지금누른채팅방id,
+            content : 채팅내용
+        }
+        $.post('/message', 보낼거).then((결과)=>{
+            console.log('전송성공');
+            console.log(보낼거.parent);
+            console.log(보낼거.content);
+        })
+    })
+  </script>
+
+
+
+  <!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>-->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>
