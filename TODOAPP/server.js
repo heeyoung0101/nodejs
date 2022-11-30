@@ -379,3 +379,35 @@ app.post('/message', 로그인했니, function(요청, 응답){
 
     })
 })
+
+/** Server Sent Event(SSE) 서버와 유저간 실시간 소통채널 열기*/
+app.get('/message/:id', 로그인했니, function(요청, 응답){
+
+    // http요청시 header를 이렇게 수정해 주세요
+    응답.writeHead(200, {
+        "Connection": "Keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+    });
+
+    db.collection('message').find({parent : 요청.params.id}).toArray()
+    .then((결과)=>{
+        //요청 한 번에 응답 여러번 받을 수 있음
+        응답.write('event: test\n');
+        응답.write('data: ' + JSON.stringify(결과) + '\n\n'); //JSON은 문자 취급 받음, 따옴표 붙이기
+    })
+    
+    //원래 데이터베이스는 수동적인데, change stream기능을 이용하면 동적으로 db변동사항을 감시해줌
+    const pipeline = [
+        { $match: {'fullDocument.parent' : 요청.params.id}} //컬렉션 안의 원하는 document만 감시하고 싶으면
+    ];
+    const collection = db.collection('message');
+    const changeStream = collection.watch(pipeline); //실시간 감시해줌
+    changeStream.on('change', (result)=>{//해당 컬렉션애 변동 생기면 해당 함수 실행
+        console.log(result.fullDocument);
+        응답.write('event: test\n');
+        응답.write('data: ' + JSON.stringify([result.fullDocument]) + '\n\n');//[]는 규격 통일
+    });
+
+
+});

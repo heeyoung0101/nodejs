@@ -57,9 +57,10 @@
        <div class="col-9 p-0">
          <div class="chat-room">
             <ul class="list-group chat-content">
-              <li><span class="chat-box">안녕</span></li>
-              <li><span class="chat-box">들리니?</span></li>
-              <li><span class="chat-box mine">응 안녕</span></li>
+                <li><span class="chat-box">안녕</span></li>
+                <li><span class="chat-box">들리니?</span></li>
+              <li><span class="chat-box mine">안녕</span></li>
+            
             </ul>
           <div class="input-group">
             <input class="form-control" id="chat-input">
@@ -74,11 +75,31 @@
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script>
     var 지금누른채팅방id; 
+    var eventSource;
     //채팅방 이름을 누르면 해당 채팅방 _id값이 변수에 담김
     $('.list-group-item').click(function(){
         지금누른채팅방id = this.dataset.id; 
+        $('.chat-content').html('') //일단 메세지들 전부 비우기
         console.log('채팅방 id 저장');
-    })
+
+        //소통채널 나가기
+        if (eventSource != undefined){
+            eventSource.close()
+        }
+
+        //실시간 소통채널 입장완료
+        //유저가 데이터 수신은 new EventSource('/경로')
+        eventSource = new EventSource('/message/'+ 지금누른채팅방id);
+        eventSource.addEventListener('test', function(e){
+            console.log(JSON.parse(e.data)); //다시 따옴표 제거
+            
+            //해당 채팅방 메세지 가져오기
+            var 가져온거 = JSON.parse(e.data);
+            가져온거.forEach(element => {//가져온거(array)의 갯수에 맞게 반복문 실행
+                $('.chat-content').append(`<li><span class="chat-box">${element.content}</span></li>`);
+            });
+        })
+    });
 
     //전송 버튼을 누르면 입력한 메세지가 해당 채팅방의 db에 저장됨
     $('#send').click(function(){
