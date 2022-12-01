@@ -39,6 +39,11 @@ app.use(session({secret : '비밀코드', resave : true, saveUninitialized: fals
 app.use(passport.initialize());
 app.use(passport.session());
 
+/** WebSocket 라이브러리 */
+const http = require('http').createServer(app);
+const {Server} = require('socket.io');
+const io = new Server(http);
+
 /** 환경변수 라이브러리 */
 require('dotenv').config();
 
@@ -52,7 +57,8 @@ var db;
 MongoClient.connect(process.env.DB_URL, function(에러, client){
     if(에러) return console.log(에러)     
         db = client.db('todoapp'); //todoapp이라는 database에 접속해주세요
-        app.listen(process.env.PORT, function(){ //몽고디비 접속 완료되면 서버 실행해 주세요
+        // app.listen(process.env.PORT, function(){ //몽고디비 접속 완료되면 서버 실행해 주세요
+        http.listen(process.env.PORT, function(){ //app.listen이랑 같음, 웹소켓을 위해 바꿔줌
         console.log('listening on 8080')
     });
 })
@@ -303,6 +309,7 @@ app.use('/board/sub', require('./routes/board.js'));
 
 /** multer(파일) 라이브러리 셋팅 */
 let multer = require('multer');
+const { render } = require('ejs');
 var storage = multer.diskStorage({ // 어디에 저장? 하드, 램
     destination : function(req, file, cb){// 이미지를 어떤 경로에 저장할지
         cb(null, './public/image')
@@ -380,7 +387,7 @@ app.post('/message', 로그인했니, function(요청, 응답){
     })
 })
 
-/** Server Sent Event(SSE) 서버와 유저간 실시간 소통채널 열기*/
+/** Server Sent Event(SSE) 서버와 유저간 실시간 소통채널 열기(서버 > 유저 일방적)*/
 app.get('/message/:id', 로그인했니, function(요청, 응답){
 
     // http요청시 header를 이렇게 수정해 주세요
@@ -409,5 +416,18 @@ app.get('/message/:id', 로그인했니, function(요청, 응답){
         응답.write('data: ' + JSON.stringify([result.fullDocument]) + '\n\n');//[]는 규격 통일
     });
 
-
 });
+
+/** socket 채팅방 접속 */
+app.get('/socket', function(요청, 응답){
+    응답.render('socket.ejs');
+})
+
+/** WebSocket 양방향 실시간 소통 */
+io.on('connection', function(socket){
+    console.log('유저접속됨');
+    //socket.emit한 메세지를 서버가 수신
+    socket.on('user-send', function(data){
+        console.log(data);
+    })
+})
