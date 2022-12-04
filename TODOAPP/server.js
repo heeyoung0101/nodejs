@@ -426,8 +426,22 @@ app.get('/socket', function(요청, 응답){
 /** WebSocket 양방향 실시간 소통 */
 io.on('connection', function(socket){
     console.log('유저접속됨');
+    //채팅방 만들기
+    socket.on('joinroom', function(data){
+        socket.join('room1')
+    })
+
+    //채팅방 안의 유저들에게만 전송, room1-send로 메세지 보내면 room1에만 broadcast 전송
+    socket.on('room1-send', function(data){
+        io.to('room1').emit('broadcast', data)
+    })
+    
     //socket.emit한 메세지를 서버가 수신
     socket.on('user-send', function(data){
-        console.log(data);
+        console.log('유저 : ' +  data);
+        //서버 > 유저 메세지 전송 (모든 유저에게)
+        io.emit('broadcast', data)
+        //서버 > 유저 1명간 소통
+        io.to(socket.id).emit('broadcast', data)
     })
 })

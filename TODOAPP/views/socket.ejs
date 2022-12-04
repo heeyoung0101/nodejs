@@ -14,15 +14,34 @@
   <%- include('nav.html') %> 
   <!-- 제이쿼리-->
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <!-- 웹소켓-->
+  <!-- 웹소켓, 라이브러리 버전 꼭 확인-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js" integrity="sha512-YeeA/Qxn5hYdkukScTCNNOhTrv1C2RubAGButJ1rmgQwZf/HdRaCGl+JAVkqsqaNRaYNHdheiuKKuPf9mDcqKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   
   <div>채팅방</div>
+  <input id="input1">
+  <div id="content"></div>
   <button id="send">서버에 메세지 보내기</button>
+  <button id="room1">채팅방1 입장</button>
+  <button id="room1-send">채팅방1에서 메세지보내기</button>
   <script>
     var socket = io();
+
+    $('#room1').click(function(){
+        //채팅만 만들기 get, post 요청을 socket으로 대체
+        socket.emit('joinroom', '채팅방입장시켜줘')
+    })
+
+    $('#room1-send').click(function(){
+        socket.emit('room1-send', '반가워 채팅방1 사람들아')
+    })
+    /** input에 입력된 값이 서버로 전송 */
     $('#send').click(function(){
-        socket.emit('user-send' , '안녕하세요'); 
+        socket.emit('user-send' , $('#input1').val()); 
+    });
+
+    socket.on('broadcast', function(data){
+        console.log('서버 : ' + data)
+        $('#content').append('<div>'+ data +'</div>')
     })
   </script>
 
